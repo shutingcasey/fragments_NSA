@@ -10,5 +10,8 @@
     "url": "git+https://github.com/shutingcasey/fragments_NSA.git"
   },
   "author": "shutinghsu",
-  "license": "UNLICENSED "
+  "license": "UNLICENSED ",
+  "devDependencies": {
+    "prettier": "3.8.3"
+  }
 }
