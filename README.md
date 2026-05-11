@@ -2,7 +2,6 @@
 This repository contains the backend REST API for the **Fragments** service.  
 The service is built with **Node.js** and **Express**, and is designed to run in a Linux-based environment for cloud deployment.
 
-
 ---
 
 ## Requirements
