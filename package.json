@@ -1,0 +1,14 @@
+{
+  "name": "fragments_nsa",
+  "version": "0.0.1",
+  "description": "Fragments back-end API",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shutingcasey/fragments_NSA.git"
+  },
+  "author": "shutinghsu",
+  "license": "UNLICENSED "
+}
