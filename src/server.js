@@ -1,4 +1,6 @@
 // src/server.js
+// We'll change the default entry point of our server, 
+// from src/server.js to use a new file: src/index.js
 
 // We want to gracefully shutdown our server
 const stoppable = require('stoppable');
