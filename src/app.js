@@ -26,24 +26,9 @@ app.use(helmet());
 // Use CORS middleware so we can make requests across origins
 app.use(cors());
 
-// Define a simple health check route. If the server is running
-// we'll respond with a 200 OK.  If not, the server isn't healthy.
-app.get('/', (req, res) => {
-  // Clients shouldn't cache this response (always request it fresh)
-  // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#controlling_caching
-  res.setHeader('Cache-Control', 'no-cache');
+// Define our routes
+app.use('/', require('./routes'));
 
-  // Send a 200 'OK' response with info about our repo
-  res.status(200).json({
-    status: 'ok',
-    description: 'fragments service running normally',
-    author,
-    // TODO: change this to use your GitHub username!
-    githubUrl: 'https://github.com/shutingcasey/fragments',
-    version,
-    timestamp: new Date().toISOString(),
-  });
-});
 
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
