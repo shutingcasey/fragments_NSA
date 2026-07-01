@@ -1,4 +1,5 @@
 const MemoryDB = require('./memory-db');
+const logger = require('../../../logger');
 
 // Create two in-memory databases: one for fragment metadata and the other for raw data
 // The `data` MemoryDB simulates Amazon S3 for blob storage, the `metadata` simulates
@@ -10,6 +11,7 @@ const metadata = new MemoryDB();
 function writeFragment(fragment) {
   // Simulate db/network serialization of the value, storing only JSON representation.
   // This is important because it's how things will work later with AWS data stores.
+  logger.debug({ ownerId: fragment.ownerId, id: fragment.id }, 'writing fragment metadata');
   const serialized = JSON.stringify(fragment);
   return metadata.put(fragment.ownerId, fragment.id, serialized);
 }
@@ -19,22 +21,27 @@ async function readFragment(ownerId, id) {
   // NOTE: this data will be raw JSON, we need to turn it back into an Object.
   // You'll need to take care of converting this back into a Fragment instance
   // higher up in the callstack.
+  logger.debug({ ownerId, id }, 'reading fragment metadata');
   const serialized = await metadata.get(ownerId, id);
   return typeof serialized === 'string' ? JSON.parse(serialized) : serialized;
 }
 
 // Write a fragment's data buffer to memory db. Returns a Promise
 function writeFragmentData(ownerId, id, buffer) {
+  logger.debug({ ownerId, id, size: buffer.length }, 'writing fragment data');
   return data.put(ownerId, id, buffer);
 }
 
 // Read a fragment's data from memory db. Returns a Promise
 function readFragmentData(ownerId, id) {
+  logger.debug({ ownerId, id }, 'reading fragment data');
   return data.get(ownerId, id);
 }
 
 // Get a list of fragment ids/objects for the given user from memory db. Returns a Promise
 async function listFragments(ownerId, expand = false) {
+  logger.debug({ ownerId, expand }, 'listing fragments');
+
   const fragments = await metadata.query(ownerId);
 
   // If we don't get anything back, or are supposed to give expanded fragments, return
@@ -48,6 +55,7 @@ async function listFragments(ownerId, expand = false) {
 
 // Delete a fragment's metadata and data from memory db. Returns a Promise
 function deleteFragment(ownerId, id) {
+  logger.info({ ownerId, id }, 'deleting fragment metadata and data');
   return Promise.all([
     // Delete metadata
     metadata.del(ownerId, id),

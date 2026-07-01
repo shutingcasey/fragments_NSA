@@ -6,6 +6,8 @@ const { randomUUID } = require('crypto');
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
 
+const logger = require('../logger');
+
 // Functions for working with fragment metadata/data using our DB
 const {
   readFragment,
@@ -48,6 +50,7 @@ class Fragment {
    */
   
   static async byUser(ownerId, expand = false) {
+    logger.debug({ ownerId, expand }, 'getting fragments by user');
     const fragments = await listFragments(ownerId, expand);
 
     if (expand) {
@@ -67,9 +70,11 @@ class Fragment {
    */
 
   static async byId(ownerId, id) {
+    logger.debug({ ownerId, id }, 'getting fragment by id');
     const fragment = await readFragment(ownerId, id);
 
     if (!fragment) {
+        logger.warn({ ownerId, id }, 'fragment not found');
         throw new Error(`fragment not found: ${id}`);
     }
 
@@ -83,6 +88,7 @@ class Fragment {
    * @returns Promise<void>
    */
   static delete(ownerId, id) {
+    logger.info({ ownerId, id }, 'deleting fragment');
     return deleteFragment(ownerId, id);
   }
 
@@ -93,6 +99,15 @@ class Fragment {
   
   save() {
     this.updated = new Date().toISOString();
+    logger.debug(
+      {
+        ownerId: this.ownerId,
+        id: this.id,
+        type: this.type,
+        size: this.size,
+      },
+      'saving fragment metadata'
+    );
     return writeFragment(this);
   }
 
@@ -101,6 +116,7 @@ class Fragment {
    * @returns Promise<Buffer>
    */
   getData() {
+    logger.debug({ ownerId: this.ownerId, id: this.id }, 'getting fragment data');
     return readFragmentData(this.ownerId, this.id);
   }
 
@@ -111,11 +127,21 @@ class Fragment {
    */
   async setData(data) {
     if (!Buffer.isBuffer(data)) {
-        throw new Error('data must be a Buffer');
+      logger.warn({ id: this.id }, 'setData called without Buffer');
+      throw new Error('data must be a Buffer');
     }
 
     this.size = data.length;
     this.updated = new Date().toISOString();
+
+    logger.debug(
+      {
+        ownerId: this.ownerId,
+        id: this.id,
+        size: this.size,
+      },
+      'setting fragment data'
+    );
 
     await writeFragmentData(this.ownerId, this.id, data);
     await writeFragment(this);
