@@ -3,6 +3,7 @@
 const request = require('supertest');
 
 const app = require('../../src/app');
+const { Fragment } = require('../../src/model/fragment');
 
 describe('GET /v1/fragments', () => {
   // If the request is missing the Authorization header, it should be forbidden
@@ -20,6 +21,18 @@ describe('GET /v1/fragments', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe('ok');
     expect(Array.isArray(res.body.fragments)).toBe(true);
+  });
+
+  test('GET /v1/fragments returns 500 if byUser throws', async () => {
+    jest.spyOn(Fragment, 'byUser').mockRejectedValueOnce(new Error('boom'));
+
+    const res = await request(app)
+      .get('/v1/fragments')
+      .auth('test-user1@fragments-testing.com', 'test-password1');
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.status).toBe('error');
+    expect(res.body.error.code).toBe(500);
   });
 
   // TODO: we'll need to add tests to check the contents of the fragments array later

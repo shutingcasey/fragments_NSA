@@ -40,6 +40,12 @@ app.use(passport.initialize());
 // Define our routes
 app.use('/', require('./routes'));
 
+if (process.env.NODE_ENV === 'test') {
+  app.get('/error', (req, res, next) => {
+    next(new Error('test error'));
+  });
+}
+
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
   res.status(404).json(createErrorResponse(404, 'not found'));

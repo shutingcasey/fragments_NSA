@@ -11,4 +11,13 @@ describe('404 handler', () => {
     expect(res.body.error.code).toBe(404);
     expect(res.body.error.message).toBe('not found');
   });
+
+  test('should return 500 for unexpected server errors', async () => {
+  const res = await request(app).get('/error');
+
+  expect(res.statusCode).toBe(500);
+  expect(res.body.status).toBe('error');
+  expect(res.body.error.code).toBe(500);
+  expect(res.body.error.message).toBe('test error');
+});
 });
