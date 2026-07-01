@@ -35,5 +35,4 @@ describe('GET /v1/fragments', () => {
     expect(res.body.error.code).toBe(500);
   });
 
-  // TODO: we'll need to add tests to check the contents of the fragments array later
 });
