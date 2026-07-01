@@ -11,9 +11,8 @@ describe('auth-middleware', () => {
   });
 
   test('calls next with an error when passport returns an error', () => {
-    //  passport.authenticate()
     passport.authenticate.mockImplementation((strategy, options, callback) => {
-      return (req, res, next) => {
+      return () => {
         callback(new Error('boom'));
       };
     });
@@ -27,7 +26,7 @@ describe('auth-middleware', () => {
     middleware(req, res, next);
 
     expect(next).toHaveBeenCalled();
-    
+
     const err = next.mock.calls[0][0];
 
     expect(err.status).toBe('error');
