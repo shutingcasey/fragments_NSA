@@ -25,7 +25,8 @@ WORKDIR /app
 # Option 3: explicit filenames - Copy the package.json and package-lock.json
 # files into the working dir (/app), using full paths and multiple source
 # files.  All of the files will be copied into the working dir `./app`
-COPY package.json package-lock.json ./
+# COPY package.json package-lock.json ./
+COPY package*.json ./
 
 # Install node dependencies defined in package-lock.json
 RUN npm install
