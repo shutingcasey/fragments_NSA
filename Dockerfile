@@ -3,13 +3,15 @@
 # a Docker image for the Fragments Node.js application.
 
 # Use the official Node.js image that matches my local Node version
-FROM node:24.13.0
+FROM node:24.13.0-alpine
 
 LABEL maintainer="Shu-Ting Hsu <chsu17@myseneca.ca>"
 LABEL description="Fragments node.js microservice"
 
 # We default to use port 8080 in our service
 ENV PORT=8080
+
+ENV NODE_ENV=production
 
 # Reduce npm spam when installing within Docker
 # https://docs.npmjs.com/cli/v8/using-npm/config#loglevel
@@ -29,7 +31,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install node dependencies defined in package-lock.json
-RUN npm install
+RUN npm ci --omit=dev
 
 # Copy src to /app/src/
 COPY ./src ./src
