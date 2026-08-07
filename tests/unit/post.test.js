@@ -1,3 +1,4 @@
+// tests/unit/post.test.js
 const request = require('supertest');
 const app = require('../../src/app');
 
@@ -50,5 +51,57 @@ describe('POST /v1/fragments', () => {
     expect(res.statusCode).toBe(415);
     expect(res.body.status).toBe('error');
     expect(res.body.error.code).toBe(415);
+  });
+
+  test('authenticated users can create a JSON fragment', async () => {
+    const data = JSON.stringify({
+      name: 'Casey',
+      assignment: 2,
+    });
+
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('test-user1@fragments-testing.com', 'test-password1')
+      .set('Content-Type', 'application/json')
+      .send(data);
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.status).toBe('ok');
+
+    expect(res.body.fragment).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        ownerId: expect.any(String),
+        created: expect.any(String),
+        updated: expect.any(String),
+        type: 'application/json',
+        size: Buffer.byteLength(data),
+      })
+    );
+  });
+
+  test('authenticated users can create a Markdown fragment', async () => {
+    const data = '# Hello World';
+
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('test-user1@fragments-testing.com', 'test-password1')
+      .set('Content-Type', 'text/markdown')
+      .send(data);
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.status).toBe('ok');
+
+    expect(res.body.fragment).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        ownerId: expect.any(String),
+        created: expect.any(String),
+        updated: expect.any(String),
+        type: 'text/markdown',
+        size: Buffer.byteLength(data),
+      })
+    );
+
   });
 });

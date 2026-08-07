@@ -35,4 +35,38 @@ describe('GET /v1/fragments', () => {
     expect(res.body.error.code).toBe(500);
   });
 
+  test('GET /v1/fragments?expand=1 returns full fragment metadata', async () => {
+    const hash = require('../../src/hash');
+
+    const ownerId = hash('test-user1@fragments-testing.com');
+
+    const fragment = new Fragment({
+      ownerId,
+      type: 'text/plain',
+    });
+
+    await fragment.setData(Buffer.from('hello'));
+
+    const res = await request(app)
+      .get('/v1/fragments?expand=1')
+      .auth('test-user1@fragments-testing.com', 'test-password1');
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(Array.isArray(res.body.fragments)).toBe(true);
+
+    expect(res.body.fragments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: fragment.id,
+          ownerId,
+          type: 'text/plain',
+          size: 5,
+          created: expect.any(String),
+          updated: expect.any(String),
+        }),
+      ])
+    );
+  });
+
 });
