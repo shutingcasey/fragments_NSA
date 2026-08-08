@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
       return res.status(415).json(createErrorResponse(415, 'unsupported content type'));
     }
 
-    const { type } = contentType.parse(req);
+    const type = contentType.format(contentType.parse(req));
 
     logger.debug({ type, size: req.body.length }, 'creating fragment');
 
