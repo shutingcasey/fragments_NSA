@@ -17,6 +17,8 @@ services:
         # Use the FRAGMENTS_LOG_LEVEL set in the host environment, or default to info
         - FRAGMENTS_LOG_LEVEL=${FRAGMENTS_LOG_LEVEL:-info}
         - AWS_REGION=us-east-1
+        - AWS_ACCESS_KEY_ID=test
+        - AWS_SECRET_ACCESS_KEY=test
         # Use the MiniStack endpoint vs. AWS for S3 AWS SDK clients.
         # NOTE: we use Docker's internal network to the ministack container
         - AWS_S3_ENDPOINT_URL=http://ministack:4566
@@ -27,6 +29,7 @@ services:
         # something else is defined in the env.
         - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME:-fragments}
         - AWS_DYNAMODB_TABLE_NAME=${AWS_DYNAMODB_TABLE_NAME:-fragments}
+
     # Ports to publish
     ports:
         - "8080:8080"
