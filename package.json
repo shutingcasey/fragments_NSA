@@ -16,7 +16,7 @@
     "type": "git",
     "url": "git+https://github.com/shutingcasey/fragments_NSA.git"
   },
-  "author": "shutinghsu",
+  "author": "Shu-Ting Hsu <chsu17@myseneca.ca>",
   "license": "UNLICENSED ",
   "devDependencies": {
     "@eslint/js": "^9.39.4",
