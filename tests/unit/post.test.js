@@ -1,5 +1,6 @@
 // tests/unit/post.test.js
 const request = require('supertest');
+const sharp = require('sharp');
 const app = require('../../src/app');
 
 describe('POST /v1/fragments', () => {
@@ -103,5 +104,51 @@ describe('POST /v1/fragments', () => {
       })
     );
 
+  });
+
+  test('authenticated users can create a CSV fragment', async () => {
+    const data = 'name,age\nAlice,30';
+
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('test-user1@fragments-testing.com', 'test-password1')
+      .set('Content-Type', 'text/csv')
+      .send(data);
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.fragment.type).toBe('text/csv');
+    expect(res.body.fragment.size).toBe(Buffer.byteLength(data));
+  });
+
+  test('authenticated users can create a YAML fragment', async () => {
+    const data = 'name: Alice';
+
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('test-user1@fragments-testing.com', 'test-password1')
+      .set('Content-Type', 'application/yaml')
+      .send(data);
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.fragment.type).toBe('application/yaml');
+    expect(res.body.fragment.size).toBe(Buffer.byteLength(data));
+  });
+
+  test('authenticated users can create a PNG image fragment', async () => {
+    const png = await sharp({
+      create: { width: 2, height: 2, channels: 3, background: { r: 0, g: 255, b: 0 } },
+    })
+      .png()
+      .toBuffer();
+
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('test-user1@fragments-testing.com', 'test-password1')
+      .set('Content-Type', 'image/png')
+      .send(png);
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.fragment.type).toBe('image/png');
+    expect(res.body.fragment.size).toBe(png.length);
   });
 });

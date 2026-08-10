@@ -6,17 +6,16 @@ const wait = async (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms)
 
 const validTypes = [
   `text/plain`,
-  /*
-   Currently, only text/plain is supported. Others will be added later.
-
   `text/markdown`,
   `text/html`,
+  `text/csv`,
   `application/json`,
+  `application/yaml`,
   `image/png`,
   `image/jpeg`,
   `image/webp`,
+  `image/avif`,
   `image/gif`,
-  */
 ];
 
 describe('Fragment class', () => {
@@ -118,21 +117,27 @@ describe('Fragment class', () => {
   });
 
   describe('isSupportedType()', () => {
-    test('common text types are supported, with and without charset', () => {
+    test('common text, JSON, YAML and image types are supported, with and without charset', () => {
       expect(Fragment.isSupportedType('text/plain')).toBe(true);
       expect(Fragment.isSupportedType('text/html')).toBe(true);
-      expect(Fragment.isSupportedType('text/css')).toBe(true);
+      expect(Fragment.isSupportedType('text/csv')).toBe(true);
       expect(Fragment.isSupportedType('text/markdown')).toBe(true);
       expect(Fragment.isSupportedType('application/json')).toBe(true);
+      expect(Fragment.isSupportedType('application/yaml')).toBe(true);
+      expect(Fragment.isSupportedType('image/png')).toBe(true);
+      expect(Fragment.isSupportedType('image/jpeg')).toBe(true);
+      expect(Fragment.isSupportedType('image/webp')).toBe(true);
+      expect(Fragment.isSupportedType('image/avif')).toBe(true);
+      expect(Fragment.isSupportedType('image/gif')).toBe(true);
       expect(Fragment.isSupportedType('text/plain; charset=utf-8')).toBe(true);
     });
 
     test('other types are not supported', () => {
+      expect(Fragment.isSupportedType('text/css')).toBe(false);
       expect(Fragment.isSupportedType('application/octet-stream')).toBe(false);
       expect(Fragment.isSupportedType('application/msword')).toBe(false);
       expect(Fragment.isSupportedType('audio/webm')).toBe(false);
       expect(Fragment.isSupportedType('video/ogg')).toBe(false);
-      expect(Fragment.isSupportedType('image/png')).toBe(false);
       expect(Fragment.isSupportedType('application/pdf')).toBe(false);
     });
   });
@@ -173,6 +178,32 @@ describe('Fragment class', () => {
         size: 0,
       });
       expect(fragment.formats).toEqual(['text/plain']);
+    });
+
+    test('formats returns the expected result for markdown', () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'text/markdown', size: 0 });
+      expect(fragment.formats).toEqual(['text/markdown', 'text/html', 'text/plain']);
+    });
+
+    test('formats returns the expected result for csv', () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'text/csv', size: 0 });
+      expect(fragment.formats).toEqual(['text/csv', 'text/plain', 'application/json']);
+    });
+
+    test('formats returns the expected result for json', () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'application/json', size: 0 });
+      expect(fragment.formats).toEqual(['application/json', 'application/yaml', 'text/plain']);
+    });
+
+    test('formats returns the expected result for images', () => {
+      const fragment = new Fragment({ ownerId: '1234', type: 'image/png', size: 0 });
+      expect(fragment.formats).toEqual([
+        'image/png',
+        'image/jpeg',
+        'image/webp',
+        'image/gif',
+        'image/avif',
+      ]);
     });
   });
 

@@ -170,22 +170,51 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    if (this.mimeType === 'text/markdown') {
-      return ['text/markdown', 'text/html'];
-    }
-
-    return [this.mimeType];
+    return Fragment.VALID_CONVERSIONS[this.mimeType] || [this.mimeType];
   }
 
   static isSupportedType(value) {
     try {
       const { type } = contentType.parse(value);
 
-      return type.startsWith('text/') || type === 'application/json';
+      return Fragment.SUPPORTED_TYPES.includes(type);
     } catch {
       return false;
     }
   }
 }
+
+// The set of mime types that can be used to create a fragment. See
+// https://www.iana.org/assignments/media-types/media-types.xhtml
+Fragment.SUPPORTED_TYPES = [
+  'text/plain',
+  'text/markdown',
+  'text/html',
+  'text/csv',
+  'application/json',
+  'application/yaml',
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/avif',
+  'image/gif',
+];
+
+// The mime types each fragment type can be converted to, per the
+// Fragments HTTP API Specification's Valid Fragment Conversions table.
+const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'];
+Fragment.VALID_CONVERSIONS = {
+  'text/plain': ['text/plain'],
+  'text/markdown': ['text/markdown', 'text/html', 'text/plain'],
+  'text/html': ['text/html', 'text/plain'],
+  'text/csv': ['text/csv', 'text/plain', 'application/json'],
+  'application/json': ['application/json', 'application/yaml', 'text/plain'],
+  'application/yaml': ['application/yaml', 'text/plain'],
+  'image/png': IMAGE_TYPES,
+  'image/jpeg': IMAGE_TYPES,
+  'image/webp': IMAGE_TYPES,
+  'image/gif': IMAGE_TYPES,
+  'image/avif': IMAGE_TYPES,
+};
 
 module.exports.Fragment = Fragment;
